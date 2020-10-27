@@ -13,11 +13,13 @@ import java.util.concurrent.RecursiveTask;
 @Service
 public class PathCalculator {
 
-    public String calculate(Code code, String start, String end, int movesThreshold) {
+    public Route calculate(Code code, String start, String end, int movesThreshold) {
+        if (start.equals(end)) return new Route().add(end);
+
         Route route = new RouteTask(code, start, end, movesThreshold, new Route()).compute();
 
         if (route == null) throw new RuntimeException("No routes found!");
-        return route.toString();
+        return route;
     }
 
     private static class RouteTask extends RecursiveTask<Route> {
@@ -37,14 +39,15 @@ public class PathCalculator {
 
         @Override
         protected Route compute() {
-            if (movesRemaining < 0 || route.contains(position)) return null;
+            if (movesRemaining == 0 || route.contains(position)) return null;
 
             route.add(position);
-            if (position.equals(end)) return route;
 
             Piece piece = PieceUtils.get(code, position);
             List<ForkJoinTask<Route>> tasks = new ArrayList<>();
             for (String next : piece.next()) {
+                if (next.equals(end)) return route.add(next);
+
                 tasks.add(new RouteTask(code, next, end, movesRemaining - 1, new Route(route)).fork());
             }
 

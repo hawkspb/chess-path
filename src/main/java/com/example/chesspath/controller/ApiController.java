@@ -23,7 +23,7 @@ public class ApiController {
                        @RequestParam("start") @ChessBoardCell String start,
                        @RequestParam("end") @ChessBoardCell String end,
                        @RequestParam(value = "moves", required = false, defaultValue = "3") int movesThreshold) {
-        return calculator.calculate(piece, start, end, movesThreshold);
+        return calculator.calculate(piece, start, end, movesThreshold).toString();
     }
 
 }
